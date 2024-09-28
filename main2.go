@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/lib/pq" // this will help make postgres work with datbase/sql
+	_ "github.com/lib/pq"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -40,13 +40,12 @@ func init() {
 }
 
 func createConnection() (*sql.DB, error) {
-	connStr := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=%s",
+	connStr := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=disable",
 		os.Getenv("DB_USERNAME"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
 		os.Getenv("DB_NAME"),
-		os.Getenv("SSL"),
 	)
 
 	db, err := sql.Open("postgres", connStr)
@@ -65,15 +64,16 @@ func createConnection() (*sql.DB, error) {
 func main() {
 	router := gin.Default()
 
-	router.LoadHTMLGlob(os.Getenv("KO_DATA_PATH") + "/*")
-	db, err := createConnection()
-	if err != nil {
-		log.Println("Error connecting to PostgreSQL", err)
-		return
-	}
-	defer db.Close()
+	router.LoadHTMLGlob("templates/*")
 
 	router.GET("/", func(c *gin.Context) {
+		db, err := createConnection()
+		if err != nil {
+			log.Println("Error connecting to PostgreSQL", err)
+			c.String(http.StatusInternalServerError, "Error connecting to the PostgreSQL database")
+			return
+		}
+		defer db.Close()
 
 		rows, err := db.Query("SELECT * FROM goals")
 		if err != nil {
@@ -110,6 +110,13 @@ func main() {
 	router.POST("/add_goal", func(c *gin.Context) {
 		goalName := c.PostForm("goal_name")
 		if goalName != "" {
+			db, err := createConnection()
+			if err != nil {
+				log.Println("Error connecting to PostgreSQL", err)
+				c.String(http.StatusInternalServerError, "Error connecting to the PostgreSQL database")
+				return
+			}
+			defer db.Close()
 
 			_, err = db.Exec("INSERT INTO goals (goal_name) VALUES ($1)", goalName)
 			if err != nil {
@@ -121,7 +128,6 @@ func main() {
 			// Increment the add goal counter
 			addGoalCounter.Inc()
 			httpRequestsCounter.WithLabelValues("/add_goal").Inc()
-
 		}
 		c.Redirect(http.StatusFound, "/")
 	})
@@ -129,6 +135,13 @@ func main() {
 	router.POST("/remove_goal", func(c *gin.Context) {
 		goalID := c.PostForm("goal_id")
 		if goalID != "" {
+			db, err := createConnection()
+			if err != nil {
+				log.Println("Error connecting to PostgreSQL", err)
+				c.String(http.StatusInternalServerError, "Error connecting to the PostgreSQL database")
+				return
+			}
+			defer db.Close()
 
 			_, err = db.Exec("DELETE FROM goals WHERE id = $1", goalID)
 			if err != nil {
@@ -140,7 +153,6 @@ func main() {
 			// Increment the remove goal counter
 			removeGoalCounter.Inc()
 			httpRequestsCounter.WithLabelValues("/remove_goal").Inc()
-
 		}
 		c.Redirect(http.StatusFound, "/")
 	})
