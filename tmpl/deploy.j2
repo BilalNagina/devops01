@@ -86,9 +86,9 @@ spec:
   - name: http
     port: 80
     protocol: HTTP
-    hostname: "app.bilal.com"
+    hostname: "app.devopswithbilal.xyz"
   - name: https
-    hostname: "app.bilal.com"
+    hostname: "app.devopswithbilal.xyz"
     port: 443
     protocol: HTTPS
     allowedRoutes:
@@ -97,15 +97,15 @@ spec:
     tls:
       mode: Terminate
       certificateRefs:
-      - name: app-kubesimplify-com-tls
+      - name: app-devopswithbilal-xyz-tls
         kind: Secret
         group: ""
   - name: argo-http
     port: 80
     protocol: HTTP
-    hostname: "argo.bilal.com"
+    hostname: "argo.devopswithbilal.xyz"
   - name: argo-https
-    hostname: "argo.bilal.com"
+    hostname: "argo.devopswithbilal.xyz"
     port: 443
     protocol: HTTPS
     allowedRoutes:
@@ -114,7 +114,7 @@ spec:
     tls:
       mode: Terminate
       certificateRefs:
-      - name: argo-kubesimplify-com-tls
+      - name: argo-devopswithbilal-xyz-tls
         kind: Secret
         group: ""
 
@@ -128,7 +128,7 @@ spec:
   - name: app-gateway
     namespace: default
   hostnames:
-  - "app.bilal.com"
+  - "app.devopswithbilal.xyz"
   rules:
   - matches:
     - path:

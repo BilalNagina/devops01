@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: my-app
-        image: docker.io/bilaln/devops001:sha-xyz
+        image: docker.io/bilaln/devops001@sha256:29da9a9806121686f0dba6c3c659d5f66ddd2da664380a57326e2685fcd6fc0e
         imagePullPolicy: Always
         env:
         - name: DB_USERNAME
@@ -86,9 +86,9 @@ spec:
   - name: http
     port: 80
     protocol: HTTP
-    hostname: "app.bilal.com"
+    hostname: "*.devopswithbilal.xyz"
   - name: https
-    hostname: "app.bilal.com"
+    hostname: "*.devopswithbilal.xyz"
     port: 443
     protocol: HTTPS
     allowedRoutes:
@@ -97,24 +97,7 @@ spec:
     tls:
       mode: Terminate
       certificateRefs:
-      - name: app-kubesimplify-com-tls
-        kind: Secret
-        group: ""
-  - name: argo-http
-    port: 80
-    protocol: HTTP
-    hostname: "argo.bilal.com"
-  - name: argo-https
-    hostname: "argo.bilal.com"
-    port: 443
-    protocol: HTTPS
-    allowedRoutes:
-      namespaces:
-        from: All
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - name: argo-kubesimplify-com-tls
+      - name: app-devopswithbilal-xyz-tls
         kind: Secret
         group: ""
 
@@ -128,7 +111,7 @@ spec:
   - name: app-gateway
     namespace: default
   hostnames:
-  - "app.bilal.com"
+  - "app.devopswithbilal.xyz"
   rules:
   - matches:
     - path:

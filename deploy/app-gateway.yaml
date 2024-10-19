@@ -28,9 +28,9 @@ spec:
   - name: argo-http
     port: 80
     protocol: HTTP
-    hostname: "argo-devopswithbilal-xyz"
+    hostname: "argo.devopswithbilal.xyz"
   - name: argo-https
-    hostname: "argo-devopswithbilal-xyz"
+    hostname: "argo.devopswithbilal.xyz"
     port: 443
     protocol: HTTPS
     allowedRoutes:
@@ -42,4 +42,3 @@ spec:
       - name: argo-devopswithbilal-xyz-tls
         kind: Secret
         group: ""
-
