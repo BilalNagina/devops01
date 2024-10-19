@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/lib/pq" // this will help make postgres work with datbase/sql
+	_ "github.com/lib/pq" // This will help make Postgres work with database/sql
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -37,6 +37,9 @@ func init() {
 	prometheus.MustRegister(addGoalCounter)
 	prometheus.MustRegister(removeGoalCounter)
 	prometheus.MustRegister(httpRequestsCounter)
+
+	// Log registered metrics
+	log.Println("Prometheus metrics registered.")
 }
 
 func createConnection() (*sql.DB, error) {
@@ -68,16 +71,15 @@ func main() {
 	router.LoadHTMLGlob(os.Getenv("KO_DATA_PATH") + "/*")
 	db, err := createConnection()
 	if err != nil {
-		log.Println("Error connecting to PostgreSQL", err)
+		log.Println("Error connecting to PostgreSQL:", err)
 		return
 	}
 	defer db.Close()
 
 	router.GET("/", func(c *gin.Context) {
-
 		rows, err := db.Query("SELECT * FROM goals")
 		if err != nil {
-			log.Println("Error querying database", err)
+			log.Println("Error querying database:", err)
 			c.String(http.StatusInternalServerError, "Error querying the database")
 			return
 		}
@@ -94,7 +96,7 @@ func main() {
 				Name string
 			}
 			if err := rows.Scan(&goal.ID, &goal.Name); err != nil {
-				log.Println("Error scanning row", err)
+				log.Println("Error scanning row:", err)
 				continue
 			}
 			goals = append(goals, goal)
@@ -110,10 +112,9 @@ func main() {
 	router.POST("/add_goal", func(c *gin.Context) {
 		goalName := c.PostForm("goal_name")
 		if goalName != "" {
-
-			_, err = db.Exec("INSERT INTO goals (goal_name) VALUES ($1)", goalName)
+			_, err := db.Exec("INSERT INTO goals (goal_name) VALUES ($1)", goalName)
 			if err != nil {
-				log.Println("Error inserting goal", err)
+				log.Println("Error inserting goal:", err)
 				c.String(http.StatusInternalServerError, "Error inserting goal into the database")
 				return
 			}
@@ -121,7 +122,6 @@ func main() {
 			// Increment the add goal counter
 			addGoalCounter.Inc()
 			httpRequestsCounter.WithLabelValues("/add_goal").Inc()
-
 		}
 		c.Redirect(http.StatusFound, "/")
 	})
@@ -129,10 +129,9 @@ func main() {
 	router.POST("/remove_goal", func(c *gin.Context) {
 		goalID := c.PostForm("goal_id")
 		if goalID != "" {
-
-			_, err = db.Exec("DELETE FROM goals WHERE id = $1", goalID)
+			_, err := db.Exec("DELETE FROM goals WHERE id = $1", goalID)
 			if err != nil {
-				log.Println("Error deleting goal", err)
+				log.Println("Error deleting goal:", err)
 				c.String(http.StatusInternalServerError, "Error deleting goal from the database")
 				return
 			}
@@ -140,7 +139,6 @@ func main() {
 			// Increment the remove goal counter
 			removeGoalCounter.Inc()
 			httpRequestsCounter.WithLabelValues("/remove_goal").Inc()
-
 		}
 		c.Redirect(http.StatusFound, "/")
 	})
