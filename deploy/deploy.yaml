@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: my-app
-        image: docker.io/bilaln/devops001@sha256:29da9a9806121686f0dba6c3c659d5f66ddd2da664380a57326e2685fcd6fc0e
+        image: docker.io/bilaln/devops001:sha-5284d14
         imagePullPolicy: Always
         env:
         - name: DB_USERNAME
@@ -86,9 +86,9 @@ spec:
   - name: http
     port: 80
     protocol: HTTP
-    hostname: "*.devopswithbilal.xyz"
+    hostname: "app.devopswithbilal.xyz"
   - name: https
-    hostname: "*.devopswithbilal.xyz"
+    hostname: "app.devopswithbilal.xyz"
     port: 443
     protocol: HTTPS
     allowedRoutes:
@@ -98,6 +98,23 @@ spec:
       mode: Terminate
       certificateRefs:
       - name: app-devopswithbilal-xyz-tls
+        kind: Secret
+        group: ""
+  - name: argo-http
+    port: 80
+    protocol: HTTP
+    hostname: "argo.devopswithbilal.xyz"
+  - name: argo-https
+    hostname: "argo.devopswithbilal.xyz"
+    port: 443
+    protocol: HTTPS
+    allowedRoutes:
+      namespaces:
+        from: All
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: argo-devopswithbilal-xyz-tls
         kind: Secret
         group: ""
 
