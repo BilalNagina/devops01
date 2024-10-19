@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: my-app
-        image: docker.io/bilaln/devops001:sha-5284d14
+        image: docker.io/bilaln/devops001:sha-97474a3
         imagePullPolicy: Always
         env:
         - name: DB_USERNAME
